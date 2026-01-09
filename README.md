@@ -1,4 +1,3 @@
-
 # Sistema de Gestión de Contratos con Integración Blockchain
 
 Este proyecto implementa una aplicación web para la gestión de contratos digitales y su registro como "contratos inteligentes" en una red blockchain local.
@@ -56,10 +55,19 @@ Para ejecutar el proyecto se recomienda tener instalado:
 
 En una terminal:
 
-```
+```bash
 git clone https://github.com/SantoValenzuela/sistema-gestion-contratos.git
 cd sistema-gestion-contratos
 ```
+
+Estructura principal:
+
+* `backend/` – API REST y lógica de negocio
+* `frontend/` – Interfaz web (React)
+* `blockchain/` – Proyecto Hardhat y smart contract
+* `docs/sql/` – Scripts SQL de creación de base de datos y tablas
+
+---
 
 4. Base de datos (SQL Server)
 
@@ -273,8 +281,3 @@ Además, desde Swagger (`http://localhost:3000/docs`) se pueden probar directame
   * **Backend** (lógica de negocio + acceso a datos),
   * **Blockchain** (registro inmutable del contrato cuando se activa).
 
-interfaz de usuario (frontend),
-
-lógica de negocio y acceso a datos (backend),
-
-y registro inmutable en blockchain (smart contract).
