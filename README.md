@@ -43,9 +43,10 @@ Incluye:
 
 ## 3. Clonar el repositorio
 
-```bash
+```
 git clone https://github.com/SantoValenzuela/sistema-gestion-contratos.git
 cd sistema-gestion-contratos
+```
 
 4. Base de datos (SQL Server)
 
