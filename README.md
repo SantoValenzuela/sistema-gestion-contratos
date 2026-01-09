@@ -1,47 +1,60 @@
-¡
+
 # Sistema de Gestión de Contratos con Integración Blockchain
 
 Este proyecto implementa una aplicación web para la gestión de contratos digitales y su registro como "contratos inteligentes" en una red blockchain local.
 
 Incluye:
 
-- **Backend (API REST)**: Node.js + TypeScript + Express + SQL Server  
-- **Capa Blockchain**: Solidity + Hardhat + ethers.js  
-- **Frontend (SPA)**: React + TypeScript + Vite
+* **Backend (API REST)**: Node.js + TypeScript + Express + SQL Server
+* **Capa Blockchain**: Solidity + Hardhat + ethers.js
+* **Frontend (SPA)**: React + TypeScript + Vite
 
 ---
 
-## 1. Arquitectura general
-
-- **Frontend** (`/frontend`):
-  - Aplicación React + TypeScript
-  - Single Page Application (SPA) creada con Vite
-  - Manejo de rutas con `react-router-dom`
-  - Consumo de la API con `axios`
-
-- **Backend** (`/backend`):
-  - Node.js + Express + TypeScript
-  - Conexión a SQL Server mediante la librería `mssql`
-  - Autenticación con JWT
-  - Documentación de endpoints con Swagger (`/docs`)
-
-- **Blockchain** (`/blockchain`):
-  - Smart contract `ContractsManager` escrito en Solidity
-  - Framework Hardhat (compilación, despliegue y red local)
-  - Integración con el backend a través de `ethers.js`
+1. Arquitectura general
 
 ---
 
-## 2. Requisitos previos
+* **Frontend** (`/frontend`):
 
-- Git  
-- Node.js 18+  
-- SQL Server (local)  
-- SQL Server Management Studio (recomendado)  
+  * Aplicación React + TypeScript
+  * Single Page Application (SPA) creada con Vite
+  * Manejo de rutas con `react-router-dom`
+  * Consumo de la API con `axios`
+
+* **Backend** (`/backend`):
+
+  * Node.js + Express + TypeScript
+  * Conexión a SQL Server mediante la librería `mssql`
+  * Autenticación con JWT
+  * Documentación de endpoints con Swagger (`/docs`)
+
+* **Blockchain** (`/blockchain`):
+
+  * Smart contract `ContractsManager` escrito en Solidity
+  * Framework Hardhat (compilación, despliegue y red local)
+  * Integración con el backend a través de `ethers.js`
 
 ---
 
-## 3. Clonar el repositorio
+2. Requisitos previos
+
+---
+
+Para ejecutar el proyecto se recomienda tener instalado:
+
+* Git
+* Node.js 18 o superior
+* SQL Server (instancia local)
+* SQL Server Management Studio (SSMS) para ejecutar los scripts SQL
+
+---
+
+3. Clonar el repositorio
+
+---
+
+En una terminal:
 
 ```
 git clone https://github.com/SantoValenzuela/sistema-gestion-contratos.git
@@ -50,38 +63,55 @@ cd sistema-gestion-contratos
 
 4. Base de datos (SQL Server)
 
-Crear la base de datos, por ejemplo:
+---
 
-CREATE DATABASE ContractsDB;
-GO
+1. Abrir **SQL Server Management Studio (SSMS)**.
 
+2. Ejecutar el script SQL de creación de base de datos y tablas ubicado en:
 
-Ejecutar el script SQL ubicado en docs/sql/ sobre ContractsDB para crear las tablas necesarias (users, contracts, contract_participants, contract_events, etc.).
+   * `docs/sql/01_create_contracts_db_and_schema.sql`
+     (incluye `CREATE DATABASE contracts_db`, tablas, índices y restricciones).
 
-(Opcional) Crear un usuario específico para el sistema:
+   Ese script creará:
 
-CREATE LOGIN contracts_user WITH PASSWORD = 'ContraseñaSegura123!';
-GO
+   * La base de datos **`contracts_db`**
+   * Las tablas:
 
-USE ContractsDB;
-CREATE USER contracts_user FOR LOGIN contracts_user;
-ALTER ROLE db_owner ADD MEMBER contracts_user;
-GO
+     * `users`
+     * `contracts`
+     * `contract_participants`
+     * `contract_events`
+   * El usuario de base de datos `contracts_user` con rol `db_owner` sobre `contracts_db` (asociado al login `contracts_user`).
+
+3. En caso de que el login `contracts_user` no exista, el script lo creará automáticamente.
+
+> Nota: el nombre de la base de datos que usa el sistema es **`contracts_db`**. Este nombre se referencia en el archivo `.env` del backend.
+
+---
 
 5. Backend (API REST)
-5.1 Instalación
+
+---
+
+### 5.1 Instalación
+
+Desde la carpeta raíz del proyecto:
+
+```bash
 cd backend
 npm install
+```
 
-5.2 Configuración .env
+### 5.2 Configuración `.env`
 
-En la carpeta /backend existe un .env (o .env.example) que se puede tomar como base.
-Ejemplo de configuración:
+En la carpeta `/backend` ya existe un archivo `.env` que puede usarse como ejemplo o ajustarse directamente.
+Debe contener, como mínimo, algo equivalente a:
 
+```env
 PORT=3000
 
 DB_SERVER=localhost
-DB_DATABASE=ContractsDB
+DB_DATABASE=contracts_db
 DB_USER=contracts_user
 DB_PASSWORD=ContraseñaSegura123!
 DB_ENCRYPT=false
@@ -93,103 +123,155 @@ HARDHAT_RPC_URL=http://127.0.0.1:8545
 HARDHAT_DEPLOYER_PRIVATE_KEY=<clave privada de una cuenta de Hardhat>
 BLOCKCHAIN_NETWORK=hardhat-local
 CONTRACTS_MANAGER_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+```
 
+* `DB_DATABASE` debe ser `contracts_db`.
+* `DB_USER` y `DB_PASSWORD` deben coincidir con los definidos en SQL Server.
+* Los parámetros de blockchain se rellenan después de desplegar el smart contract (ver sección 6).
 
-Ajustar los valores según la instalación local de SQL Server y la dirección del contrato desplegado (ver sección de blockchain).
+### 5.3 Ejecutar el backend
 
-5.3 Ejecutar el backend
+```bash
 npm run dev
+```
 
+La API estará disponible en:
 
-La API queda disponible en:
+* `http://localhost:3000`
 
-http://localhost:3000
+Documentación Swagger (para probar endpoints):
 
-Documentación Swagger: http://localhost:3000/docs
+* `http://localhost:3000/docs`
+
+---
 
 6. Blockchain (Hardhat + Solidity)
-6.1 Instalación
+
+---
+
+### 6.1 Instalación
+
+```bash
 cd blockchain
 npm install
+```
 
-6.2 Compilar contratos
+### 6.2 Compilar contratos (opcional, recomendado)
+
+```bash
 npx hardhat compile
+```
 
-6.3 Levantar red local
+### 6.3 Levantar la red local de Hardhat
+
+```bash
 npx hardhat node
+```
 
+Esto levanta una blockchain local en `http://127.0.0.1:8545` y muestra en consola varias cuentas de prueba con sus claves privadas.
 
-La red local quedará en http://127.0.0.1:8545 y la consola mostrará varias cuentas con sus claves privadas.
+### 6.4 Desplegar el smart contract
 
-6.4 Desplegar el smart contract
+En otra terminal (dejando `npx hardhat node` corriendo):
 
-En otra terminal:
-
+```bash
 cd blockchain
 npx hardhat run scripts/deploy.ts --network localhost
+```
 
+La salida mostrará algo como:
 
-La salida mostrará la dirección del contrato ContractsManager, por ejemplo:
-
+```text
 Desplegando ContractsManager en localhost...
 ✅ ContractsManager desplegado en: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+```
 
+* Copiar esa dirección y pegarla en el archivo `.env` del backend:
 
-Copiar esta dirección en el .env del backend:
-
+```env
 CONTRACTS_MANAGER_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+```
 
+* Para `HARDHAT_DEPLOYER_PRIVATE_KEY`, usar la clave privada de una de las cuentas que Hardhat muestra al ejecutar `npx hardhat node`.
 
-Y establecer HARDHAT_DEPLOYER_PRIVATE_KEY con la clave privada de una de las cuentas de Hardhat.
+---
 
 7. Frontend (React + Vite)
-7.1 Instalación
+
+---
+
+### 7.1 Instalación
+
+```bash
 cd frontend
 npm install
+```
 
-7.2 Configuración .env
+### 7.2 Configuración `.env` del frontend
 
-Crear un archivo .env en /frontend (o usar el que ya existe como ejemplo):
+En la carpeta `/frontend` se puede crear un archivo `.env` (si no existe), con al menos:
 
+```env
 VITE_API_BASE_URL=http://localhost:3000
+```
 
-7.3 Ejecutar el frontend
+Esto indica que el frontend debe comunicarse con la API del backend en `http://localhost:3000`.
+
+### 7.3 Ejecutar el frontend
+
+```bash
 npm run dev
-
+```
 
 La aplicación web estará disponible en:
 
+```text
 http://localhost:5173
+```
+
+---
 
 8. Flujo de uso
 
-Abrir el frontend en http://localhost:5173.
+---
 
-Registrar un usuario nuevo y luego iniciar sesión.
+Con **backend**, **blockchain** y **frontend** en ejecución:
 
-Crear un nuevo contrato desde la sección de “Mis contratos”.
+1. Abrir el navegador en `http://localhost:5173`.
+2. Registrar un nuevo usuario en la pantalla de registro.
+3. Iniciar sesión con ese usuario.
+4. Crear un contrato desde la sección “Mis contratos” utilizando el botón **“+ Nuevo contrato”**.
+5. Desde el detalle del contrato:
 
-Invitar contrapartes (otros usuarios registrados) desde el detalle del contrato.
+   * Invitar a una contraparte introduciendo el correo de otro usuario registrado.
+   * Enviar el contrato a revisión cuando esté listo.
+6. Cada contraparte puede iniciar sesión y **aceptar o rechazar** el contrato.
+7. Cuando todas las partes aceptan:
 
-Enviar el contrato a revisión.
+   * El backend marca el contrato como `ACTIVE` en SQL Server.
+   * Registra el contrato en la blockchain usando el smart contract `ContractsManager`.
+8. En el detalle del contrato, la sección **“Estado en blockchain”** muestra:
 
-Cada contraparte puede aceptar o rechazar el contrato.
+   * Si el contrato está registrado on-chain.
+   * El ID on-chain.
+   * La dirección del contrato gestor.
+   * La red utilizada (`hardhat-local`).
 
-Cuando todas las partes aceptan:
+Además, desde Swagger (`http://localhost:3000/docs`) se pueden probar directamente los endpoints de autenticación, contratos, participantes y consulta on-chain.
 
-El backend marca el contrato como ACTIVE.
-
-Se registra en blockchain mediante ContractsManager.
-
-El detalle del contrato muestra la información on-chain (ID, estado, red, dirección del contrato gestor).
+---
 
 9. Notas finales
 
-El proyecto está pensado para ejecutarse en entorno local (desarrollo) usando la red de Hardhat.
+---
 
-La integración con una testnet pública (por ejemplo Sepolia) requeriría únicamente ajustar el HARDHAT_RPC_URL, la clave privada y la configuración de despliegue del contrato.
+* El sistema está diseñado para ejecutarse en entorno local con la red de Hardhat.
+* Para migrarlo a una testnet pública bastaría con ajustar la URL RPC, la clave privada y desplegar el smart contract en dicha red.
+* La aplicación está dividida en capas claras:
 
-El código sigue una arquitectura por capas, separando claramente:
+  * **Frontend** (interfaz de usuario),
+  * **Backend** (lógica de negocio + acceso a datos),
+  * **Blockchain** (registro inmutable del contrato cuando se activa).
 
 interfaz de usuario (frontend),
 
